@@ -26,7 +26,8 @@ public class BookDaoImpl implements BookDao {
             statement.setBigDecimal(2, book.getPrice());
             int affectedRows = statement.executeUpdate();
             if (affectedRows < 1) {
-                throw new RuntimeException("Create Book failed. Inserted 0 rows.");
+                throw new DataProcessingException("Сan not created row with book title:"
+                        + book.getTitle(), new RuntimeException());
             }
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -43,14 +44,13 @@ public class BookDaoImpl implements BookDao {
     public Book update(Book book) {
         String sqlSaveRequest = "UPDATE books SET title = ?, price = ? WHERE id = ?";
         try (Connection connection = ConnectionUtil.getConnection();
-                 PreparedStatement statement = connection.prepareStatement(sqlSaveRequest,
-                        Statement.RETURN_GENERATED_KEYS)) {
+                 PreparedStatement statement = connection.prepareStatement(sqlSaveRequest)) {
             statement.setString(1, book.getTitle());
             statement.setBigDecimal(2, book.getPrice());
             statement.setLong(3, book.getId());
             int updatedRows = statement.executeUpdate();
             if (updatedRows < 1) {
-                throw new RuntimeException("Update Book failed. Inserted 0 rows.");
+                throw new DataProcessingException("Update Book failed.", new RuntimeException());
             }
             return book;
         } catch (SQLException e) {
